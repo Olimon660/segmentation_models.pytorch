@@ -36,6 +36,98 @@ def iou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
     return (intersection + eps) / union
 
 
+def miou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
+    """Calculate Intersection over Union between ground truth and prediction
+    Args:
+        pr (torch.Tensor): predicted tensor
+        gt (torch.Tensor):  ground truth tensor
+        eps (float): epsilon to avoid zero division
+        threshold: threshold for outputs binarization
+    Returns:
+        float: IoU (Jaccard) score
+    """
+
+    pr = _threshold(pr, threshold=threshold)
+    pr, gt = _take_channels(pr, gt, ignore_channels=ignore_channels)
+
+    ious = []
+    for i in range(gt.shape[1]):
+        intersection = torch.sum(gt[:,i,:,:] * pr[:,i,:,:])
+        union = torch.sum(gt[:,i,:,:]) + torch.sum(pr[:,i,:,:]) - intersection + eps
+        ious.append((intersection + eps) / union)
+    return torch.mean(torch.stack(ious))
+
+
+def class_iou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None, class_idx=0):
+    """Calculate Intersection over Union between ground truth and prediction
+    Args:
+        pr (torch.Tensor): predicted tensor
+        gt (torch.Tensor):  ground truth tensor
+        eps (float): epsilon to avoid zero division
+        threshold: threshold for outputs binarization
+    Returns:
+        float: IoU (Jaccard) score
+    """
+
+    pr = _threshold(pr, threshold=threshold)
+    pr, gt = _take_channels(pr, gt, ignore_channels=ignore_channels)
+
+    intersection = torch.sum(gt[:,class_idx,:,:] * pr[:,class_idx,:,:])
+    union = torch.sum(gt[:,class_idx,:,:]) + torch.sum(pr[:,class_idx,:,:]) - intersection + eps
+    return (intersection + eps) / union
+
+
+def cemiou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
+    """Calculate Intersection over Union between ground truth and prediction
+    Args:
+        pr (torch.Tensor): predicted tensor
+        gt (torch.Tensor):  ground truth tensor
+        eps (float): epsilon to avoid zero division
+        threshold: threshold for outputs binarization
+    Returns:
+        float: IoU (Jaccard) score
+    """
+
+    _, pr = torch.max(pr, dim=1)
+    gt = gt[:,1,:,:]
+
+    pr0 = 1 - pr
+    gt0 = 1 - gt
+    ious = []
+
+    intersection0 = torch.sum(gt0 * pr0)
+    union0 = torch.sum(gt0) + torch.sum(pr0) - intersection0 + eps
+    ious.append((intersection0 + eps) / union0)
+
+    intersection = torch.sum(gt * pr)
+    union = torch.sum(gt) + torch.sum(pr) - intersection + eps
+    ious.append((intersection + eps) / union)
+
+    return torch.mean(torch.stack(ious))
+
+
+def ce_iou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None, class_idx=0):
+    """Calculate Intersection over Union between ground truth and prediction
+    Args:
+        pr (torch.Tensor): predicted tensor
+        gt (torch.Tensor):  ground truth tensor
+        eps (float): epsilon to avoid zero division
+        threshold: threshold for outputs binarization
+    Returns:
+        float: IoU (Jaccard) score
+    """
+
+    _, pr = torch.max(pr, dim=1)
+    gt = gt[:,1,:,:]
+    if class_idx == 0:
+        pr = 1 - pr
+        gt = 1 - gt
+
+    intersection = torch.sum(gt * pr)
+    union = torch.sum(gt) + torch.sum(pr) - intersection + eps
+    return (intersection + eps) / union
+
+
 jaccard = iou
 
 
