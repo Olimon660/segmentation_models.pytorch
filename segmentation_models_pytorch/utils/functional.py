@@ -37,7 +37,7 @@ def iou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
 
 
 def miou(pr, gt, eps=1e-7, threshold=None, ignore_channels=None):
-    """Calculate Intersection over Union between ground truth and prediction
+    """test
     Args:
         pr (torch.Tensor): predicted tensor
         gt (torch.Tensor):  ground truth tensor
