@@ -198,7 +198,7 @@ class DinkNet50(SegmentationModel):
         return F.sigmoid(out)
 
 
-class DinkNet101(nn.Module):
+class DinkNet101(SegmentationModel):
     def __init__(self, num_classes=2):
         super(DinkNet101, self).__init__()
 
