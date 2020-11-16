@@ -221,8 +221,8 @@ def flatten_binary_scores(scores, labels, ignore=None):
     Flattens predictions in the batch (binary case)
     Remove labels equal to 'ignore'
     """
-    scores = scores.view(-1)
-    labels = labels.view(-1)
+    scores = scores.reshape(-1)
+    labels = labels.reshape(-1)
     if ignore is None:
         return scores, labels
     valid = (labels != ignore)

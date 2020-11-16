@@ -107,6 +107,7 @@ class TrainEpoch(Epoch):
                          self.padding:(prediction.shape[3] - self.padding)]
             y = y[:, :, self.padding:(y.shape[2] - self.padding),
                 self.padding:(y.shape[3] - self.padding)]
+
         loss = self.loss(prediction, y)
         loss.backward()
         self.optimizer.step()
